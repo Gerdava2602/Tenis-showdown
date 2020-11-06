@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../../Lenguajes/python/flappyBird/FlappyBird_Python-master/.idea/FlappyBird_Python-master.iml" filepath="$PROJECT_DIR$/../../../../Lenguajes/python/flappyBird/FlappyBird_Python-master/.idea/FlappyBird_Python-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Lab_final.iml" filepath="$PROJECT_DIR$/.idea/Lab_final.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Lenguajes/python/dir_organize/.idea/dir_organize.iml" filepath="$PROJECT_DIR$/../../../../Lenguajes/python/dir_organize/.idea/dir_organize.iml" />
     </modules>
   </component>
 </project>

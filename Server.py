@@ -1,16 +1,19 @@
 import socket
 from _thread import *
+from Player import Player
+import pickle
 import sys
 
-server = "192.168.0.13"
+server = "192.168.0.27"
 # The number of the port that we are gonna use
 port = 5555
 
-# Creating the socket
+# Creating the socket s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # We need this try-catch to see if the port is avaliable
 try:
+    # "une" un socket a una dirección; de lo contrario, no sabe qué dirección (par de dirección IP/puerto) debe escuchar.
     s.bind((server, port))
 except socket.error as e:
     str(e)
@@ -20,45 +23,34 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for connection, server Started")
 
-
-def read_position(str):
-    str = str.split(",")
-    return int(str[0]), int(str[1])
-
-
-def make_pos(tup):
-    return str(tup[0]) + "," + str(tup[1])
-
-
-# A way to store all the info about the positions of the clients
-pos = [(0, 0), (100, 100)]
+players = [Player(0, 0, 50, 50, (255, 0, 0)), Player(100, 100, 50, 50, (0, 255, 0))]
 
 
 # This will be the threaded function
 def threaded_client(conn, player):
-    # We send data to the other part f the connection
-    conn.send(str.encode(make_pos(pos[player])))
+    # We are gonna send the initial player object, this will send the object
+    conn.send(pickle.dumps(players[player]))
     reply = ""
     # this will be receiving all the info, and decode it and encode it in a thread
     while True:
         try:
             # Position sent to us
-            data = read_position(conn.recv(2048).decode())
-            pos[player] = data
+            data = pickle.loads(conn.recv(2048))
+            players[player] = data
 
             if not data:
                 print("Disconnected")
                 break
             else:
                 if player == 1:
-                    reply = pos[0]
+                    reply = players[0]
                 else:
-                    reply = pos[1]
+                    reply = players[1]
 
                 print("Received ", data)
                 print("Sending : ", reply)
 
-            conn.sendall(str.encode(make_pos(reply)))
+            conn.sendall(pickle.dumps(reply))
         except:
             break
 
