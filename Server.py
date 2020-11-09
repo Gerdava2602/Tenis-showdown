@@ -4,7 +4,7 @@ from Player import Player
 import pickle
 import sys
 
-server = "192.168.0.27"
+server = "192.168.39.120"
 # The number of the port that we are gonna use
 port = 5555
 
@@ -23,7 +23,7 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for connection, server Started")
 
-players = [Player(0, 0, 50, 50, (255, 0, 0)), Player(100, 100, 50, 50, (0, 255, 0))]
+players = [Player(0, 0, 50, 50, (255, 0, 0), 1), Player(100, 100, 50, 50, (0, 255, 0),2)]
 
 
 # This will be the threaded function

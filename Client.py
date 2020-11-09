@@ -3,10 +3,13 @@ from network import Network
 from Player import Player
 
 # Creating a window
-Wwidth = 500
+Wwidth = 1000
 Wheight = 500
 win = pygame.display.set_mode((Wwidth, Wheight))
-pygame.display.set_caption("Client")
+pygame.display.set_caption("Tenis showdown")
+icon = pygame.image.load("images\\tenis.png")
+pygame.display.set_icon(icon)
+
 
 # Function to redraw the window
 def redrawWindow(win, player, player2):
@@ -34,6 +37,7 @@ def main():
                 pygame.quit()
         p.move()
         redrawWindow(win, p, p2)
+
 
 
 main()
