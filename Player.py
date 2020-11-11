@@ -86,12 +86,12 @@ class Racket:
 
 class Ball:
 
-    def __init__(self, x, y, moveX, moveY):
+    def __init__(self, x, y, moveX, moveY, game):
         self.x = x
         self.y = y
         self.dx = moveX
         self.dy = moveY
-
+        self.game = game
         self.height = 40
         self.width = 40
         self.rectangle = (self.x, self.y, self.width, self.height)
@@ -99,7 +99,23 @@ class Ball:
     def draw(self, win):
         pygame.draw.rect(win, (0, 255, 0), self.rectangle)
 
-    def update(self):
+    def update(self, game):
+        self.game = game
         self.x += self.dx
         self.y += self.dy
+        if self.y + self.height > 500:
+            self.dy *= -1
+        elif self.y < 0:
+            self.dy *= -1
+
+        # If hit
+        
+
+        if self.x + self.width > 1000:
+            self.x = round((1000 - 30) / 2)
+            self.y = round((500 - 30) / 2)
+        elif self.x < 0:
+            self.x = round((1000 - 30) / 2)
+            self.y = round((500 - 30) / 2)
+
         self.rectangle = (self.x, self.y, self.width, self.height)

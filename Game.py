@@ -11,7 +11,7 @@ class Game:
 
         self.p1 = None
         self.p2 = None
-        self.ball = Ball(100, 100, 3, 3)
+        self.ball = Ball(200, 100, 3, 3, self)
 
     def connected(self):
         return self.ready
@@ -46,11 +46,9 @@ class Game:
             self.p1.draw(win)
             self.p2.draw(win)
             self.ball.draw(win)
-            print("Drew")
 
     def update(self):
         if self.p1 is not None and self.p2 is not None:
-            self.ball.update()
+            self.ball.update(self)
             self.p1.update()
             self.p2.update()
-            print("Game", self, " ", self.p1.x, self.p2.x)

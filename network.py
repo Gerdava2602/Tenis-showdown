@@ -32,4 +32,4 @@ class Network:
             self.client.send(pickle.dumps(data))
             return pickle.loads(self.client.recv(2048))
         except socket.error as e:
-            print("socket error")
+            print(e)

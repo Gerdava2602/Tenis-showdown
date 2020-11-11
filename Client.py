@@ -67,11 +67,9 @@ def main():
         try:
             if game is None:
                 game = n.send("get")
-                print("Gotcha")
             else:
                 player.move()
                 game = n.send(player)
-                game.update()
         except:
             run = False
             print("Couldn´t get game")
