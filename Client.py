@@ -2,6 +2,7 @@ import pygame
 from network import Network
 from Player import Player
 
+pygame.font.init()
 # Creating a window
 Wwidth = 1000
 Wheight = 500
@@ -11,32 +12,81 @@ icon = pygame.image.load("images\\tenis.png")
 pygame.display.set_icon(icon)
 
 
+class Button:
+    def __init__(self, text, x, y, width, height, color):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.color = color
+        self.rect = (self.x, self.y, self.width, self.height)
+
+    def draw(self, win):
+        pygame.draw.rect(win, self.color, self.rect)
+        font = pygame.font.SysFont("comicsans", 40)
+        text = font.render(self.text, 1, (255, 255, 255))
+        win.blit(text, (self.x + round(self.width / 2) - round(self.height / 2),
+                        self.y + round(self.height / 2) - round(self.height / 2)))
+
+    def click(self, pos):
+        if self.rect.__contains__(pos):
+            return True
+        else:
+            return False
+
+
 # Function to redraw the window
-def redrawWindow(win, player, player2):
+def redrawWindow(win, game):
     win.fill((255, 255, 255))
-    player.draw(win)
-    player2.draw(win)
+    if game is not None:
+        if not game.connected():
+            font = pygame.font.SysFont("comicsans", 80)
+            text = font.render("Waiting for player...", 1, (255, 0, 0), True)
+            win.blit(text, (Wwidth / 2 - text.get_width() / 2, Wheight / 2 - text.get_height() / 2))
+        else:
+            game.draw(win)
+
     pygame.display.update()
+
+
+#btns = [Button("Play", 100, 100, 200, 50, (0, 0, 0))]
 
 
 # The function to run the main game
 def main():
     run = True
-    # Connects to the server
-    n = Network()
-    p = n.getP()
     clock = pygame.time.Clock()
+    n = Network()
+    player = n.getP()
+    game = None
+    print("You are player ", player.id)
 
     while run:
         clock.tick(60)
-        p2 = n.send(p)
-        # Something used by pygame to recieve when the program stops
+        try:
+            if game is None:
+                game = n.send("get")
+                print("Gotcha")
+            else:
+                player.move()
+                game = n.send(player)
+                game.update()
+        except:
+            run = False
+            print("Couldn´t get game")
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        p.move()
-        redrawWindow(win, p, p2)
+        """
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for button in btns:
+                    if button.click(pos) and game.connected():
+        """
+        redrawWindow(win, game)
 
 
 

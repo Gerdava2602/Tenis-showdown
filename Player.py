@@ -1,26 +1,31 @@
 import pygame
+import time
 
 
-class Player():
+class Player:
 
-    def __init__(self, x, y, width, height, color, id):
+    def __init__(self, x, y, color, id):
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
+        self.width = 50
+        self.height = 100
         self.color = color
-        self.rect = (x, y, width, height)
-        self.vel = 3
         self.id = id
+        self.rect = (x, y, self.width, self.height)
+        self.vel = 3
         self.swing = (x, y, 0, 0)
-        self.racket = Racket(self, 30, 30)
-        self.strike = False
+        self.racket = Racket(self, 7, 40, 0, -40)
+
+        # Strike booleans
+        self.strikeU = False
+        self.strikeD = False
+
+        self.timer = 0
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, self.rect)
         if self.is_striking():
             self.racket.draw(win)
-            print("Se pintó")
 
     def move(self):
         # We get all the keys that are pressed in the moment
@@ -35,36 +40,48 @@ class Player():
         if keys[pygame.K_DOWN]:
             self.y += self.vel
         if keys[pygame.K_q]:
-            self.strike = True
-            print("Strike")
+            self.strikeU = True
         else:
-            self.strike = False
+            self.strikeU = False
+        if keys[pygame.K_a]:
+            self.strikeD = True
+        else:
+            self.strikeD = False
         self.update()
 
     def update(self):
         self.rect = (self.x, self.y, self.width, self.height)
-        self.racket.update(self)
+        if self.strikeU:
+            self.racket.update(self, -40)
+        if self.strikeD:
+            self.racket.update(self, self.height)
 
     def is_striking(self):
-        return self.strike
+        if self.strikeD or self.strikeU:
+            return True
+        else:
+            return False
 
 
 class Racket:
 
-    def __init__(self, player, width, height):
+    def __init__(self, player, width, height, posX, posY):
         self.player = player
-        self.x = player.x
-        self.y = player.y - 40
         self.width = width
         self.height = height
-
+        self.posX = posX
+        self.posY = posY
+        self.x = player.x + posX
+        self.y = player.y + posY
         self.rect = (self.x, self.y, self.width, self.height)
 
     def draw(self, win):
         pygame.draw.rect(win, (255, 0, 255), self.rect)
 
-    def update(self,player):
-        self.rect = (player.x, player.y-40, self.width, self.height)
+    def update(self, player, posY):
+        self.x = player.x
+        self.y = player.y + posY
+        self.rect = (self.x, self.y, self.width, self.height)
 
 
 class Ball:
@@ -75,4 +92,14 @@ class Ball:
         self.dx = moveX
         self.dy = moveY
 
-        self.rectangle = (x, y, 40, 40)
+        self.height = 40
+        self.width = 40
+        self.rectangle = (self.x, self.y, self.width, self.height)
+
+    def draw(self, win):
+        pygame.draw.rect(win, (0, 255, 0), self.rectangle)
+
+    def update(self):
+        self.x += self.dx
+        self.y += self.dy
+        self.rectangle = (self.x, self.y, self.width, self.height)

@@ -1,72 +1,95 @@
 import socket
 from _thread import *
 from Player import Player
+from Game import Game
 import pickle
 import sys
 
-server = "192.168.39.120"
+# Gets the ipv4 of the host
+# Public address 190.84.118.189
+server = socket.gethostbyname(socket.gethostname())
 # The number of the port that we are gonna use
 port = 5555
 
-# Creating the socket s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Creating the socket the first is the type of info and the second is the category of socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # We need this try-catch to see if the port is avaliable
 try:
-    # "une" un socket a una dirección; de lo contrario, no sabe qué dirección (par de dirección IP/puerto) debe escuchar.
+    # "une" un socket a una dirección; de lo contrario, no sabe qué dirección (par de dirección IP/puerto) debe
+    # escuchar.
     s.bind((server, port))
 except socket.error as e:
     str(e)
 
-# Opens the port to have multiple clients connected
-# If we leave it in blank, this will recieve all the clients that want to enter
-s.listen(2)
-print("Waiting for connection, server Started")
-
-players = [Player(0, 0, 50, 50, (255, 0, 0), 1), Player(100, 100, 50, 50, (0, 255, 0),2)]
+connected = set()
+games = {}
+idCount = 0
 
 
 # This will be the threaded function
-def threaded_client(conn, player):
-    # We are gonna send the initial player object, this will send the object
-    conn.send(pickle.dumps(players[player]))
+def threaded_client(conn, p, gameId):
+    global idCount
+    if p == 0:
+        conn.send(pickle.dumps(Player(100, 100, (0, 255, 255), p), p))
+    else:
+        conn.send(pickle.dumps(Player(500, 100, (255, 0, 255), p), p))
     reply = ""
-    # this will be receiving all the info, and decode it and encode it in a thread
+
     while True:
         try:
-            # Position sent to us
-            data = pickle.loads(conn.recv(2048))
-            players[player] = data
-
-            if not data:
-                print("Disconnected")
-                break
-            else:
-                if player == 1:
-                    reply = players[0]
+            data = pickle.loads(conn.recv(4096))
+            print(data, p)
+            if gameId in games:
+                game = games[gameId]
+                if not data:
+                    break
                 else:
-                    reply = players[1]
+                    print("Data got")
+                    if data == "reset":
+                        game.reset()
+                    elif data != "get":
+                        print("Getting player")
+                        game.get_player(data, p)
 
-                print("Received ", data)
-                print("Sending : ", reply)
-
-            conn.sendall(pickle.dumps(reply))
+                    reply = game
+                    conn.sendall(pickle.dumps(reply))
+            else:
+                break
         except:
             break
 
     print("Lost connection")
-    # We close the connection to be able to re-open it in the future
+
+    try:
+        del games[gameId]
+        print("Closing game ", gameId)
+    except:
+        pass
+    idCount -= 1
     conn.close()
 
 
-# Number of players connected
-currentPlayer = 0
+print("[STARTING] the server is about to start...")
+# Opens the port to have multiple clients connected
+# If we leave it in blank, this will recieve all the clients that want to enter
+s.listen(2)
 
+print("Waiting for connection, server Started")
 # This while will browse for connections
 while True:
-    # This will store the connection in addr and accept the incoming requests
+    # This will store the connection in addr and accept the incoming requests. This will wait until new connections
     conn, addr = s.accept()
     print("Connected to:", addr)
 
-    start_new_thread(threaded_client, (conn, currentPlayer))
-    currentPlayer += 1
+    idCount += 1
+    p = 0
+    gameId = (idCount - 1) // 2
+    if idCount % 2 == 1:
+        games[gameId] = Game(gameId)
+        print("Creating a new game...")
+    else:
+        games[gameId].ready = True
+        p = 1
+
+    start_new_thread(threaded_client, (conn, p, gameId))
