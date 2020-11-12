@@ -68,8 +68,12 @@ def main():
             if game is None:
                 game = n.send("get")
             else:
-                player.move()
                 game = n.send(player)
+                player.move()
+                if game == (100, 100) or game == (500, 100):
+                    player.x = game[0]
+                    player.y = game[1]
+                    game = n.send(player)
         except:
             run = False
             print("Couldn´t get game")

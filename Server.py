@@ -39,17 +39,26 @@ def threaded_client(conn, p, gameId):
     while True:
         try:
             data = pickle.loads(conn.recv(4096))
-            print(data, p)
+
             if gameId in games:
                 game = games[gameId]
                 if not data:
                     break
                 else:
-                    print("Data got")
-                    if data == "reset":
-                        game.reset()
+                    # Resets the game when one player won
+                    if game.score[0] == 60 or game.score[1] == 60:
+                        if p == 0 and not game.recieved[0]:
+                            conn.send(pickle.dumps((100, 100)))
+                            game.recieved[0] = True
+                        elif p == 1 and not game.recieved[1]:
+                            conn.send(pickle.dumps((500, 100)))
+                            game.recieved[1] = True
+
+                        if game.recieved[0] and game.recieved[1]:
+                            game.reset()
+                            game.recieved[0] = False
+                            game.recieved[1] = False
                     elif data != "get":
-                        print("Getting player")
                         game.get_player(data, p)
                     game.update()
                     reply = game
