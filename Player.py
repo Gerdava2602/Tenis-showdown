@@ -3,7 +3,8 @@ import time
 
 
 def intersects(first, other):
-    return first.x < other.x + other.width and first.x + first.width > other.x and first.y < other.y + other.height and first.y + first.height > other.y
+    return first.x < other.x + other.width and first.x + first.width > other.x and first.y < other.y + other.height \
+           and first.y + first.height > other.y
 
 
 class Player:
@@ -11,8 +12,8 @@ class Player:
     def __init__(self, x, y, color, id):
         self.x = x
         self.y = y
-        self.width = 50
-        self.height = 50
+        self.width = 42
+        self.height = 62
         self.color = color
         self.id = id
         self.rect = (x, y, self.width, self.height)
@@ -24,41 +25,98 @@ class Player:
         self.strikeU = False
         self.strikeD = False
 
+        # Move booleans
+        self.right = False
+        self.left = False
+        self.up = False
+        self.down = False
+
+        self.counter = 1
         self.timer = 0
 
     def draw(self, win):
-        pygame.draw.rect(win, self.color, self.rect)
-        #if self.is_striking():
-        self.racket.draw(win)
+
+        if self.up:
+            image = pygame.image.load("images\\Up_" + str(self.counter) + ".png")
+        elif self.down:
+            image = pygame.image.load("images\\Down_" + str(self.counter) + ".png")
+        elif self.right:
+            image = pygame.image.load("images\\Right_" + str(self.counter) + ".png")
+        elif self.left:
+            image = pygame.image.load("images\\Left_" + str(self.counter) + ".png")
+        else:
+            self.counter = 1
+            if self.id == 1:
+                image = pygame.image.load("images\\Left_3.png")
+            else:
+                image = pygame.image.load("images\\Right_3.png")
+        self.counter = self.counter + 1
+        win.blit(image, (self.x, self.y))
+
+        if self.is_striking():
+            self.racket.draw(win)
 
     def move(self):
         # We get all the keys that are pressed in the moment
         keys = pygame.key.get_pressed()
 
+        if keys[pygame.K_UP]:
+            self.right = False
+            self.left = False
+            self.up = True
+            self.down = False
+            self.y -= self.vel
+
+            # Validations
+            if self.y <= 0:
+                self.y = 1
+        if keys[pygame.K_DOWN]:
+            self.right = False
+            self.left = False
+            self.up = False
+            self.down = True
+            self.y += self.vel
+
         if keys[pygame.K_LEFT]:
+            self.right = False
+            self.left = True
+            self.up = False
+            self.down = False
             self.x -= self.vel
+
+            # Validations
             if self.id == 1:
                 if self.x <= 500:
                     self.x = 501
             else:
                 if self.x <= 0:
                     self.x = 1
+
         if keys[pygame.K_RIGHT]:
+            self.right = True
+            self.left = False
+            self.up = False
+            self.down = False
             self.x += self.vel
+
+            # Validations
             if self.id == 1:
                 if self.x + self.width >= 1000:
-                    self.x = 1000-self.width-1
+                    self.x = 1000 - self.width - 1
             else:
                 if self.x + self.width >= 500:
-                    self.x = 500-self.width-1
-        if keys[pygame.K_UP]:
-            self.y -= self.vel
-            if self.y <= 0:
-                self.y = 1
-        if keys[pygame.K_DOWN]:
-            self.y += self.vel
+                    self.x = 500 - self.width - 1
+
+            # Validations
             if self.y + self.height >= 500:
-                self.y = 500-self.height-1
+                self.y = 500 - self.height - 1
+
+        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT] and not keys[pygame.K_UP] and not keys[pygame.K_DOWN]:
+            self.up = False
+            self.down = False
+            self.left = False
+            self.right = False
+
         if keys[pygame.K_q]:
             self.strikeU = True
         else:
@@ -71,6 +129,7 @@ class Player:
 
     def update(self):
         self.rect = (self.x, self.y, self.width, self.height)
+
         if self.strikeU:
             self.racket.update(self, -40)
         elif self.strikeD:
@@ -95,7 +154,7 @@ class Racket:
         self.posY = posY
         self.x = player.x + posX
         self.y = player.y + posY
-        self.rect = (self.x, self.y, self.width, self.height)
+        self.rect = None
 
     def draw(self, win):
         if self.rect is not None:
@@ -109,6 +168,7 @@ class Racket:
     def disappear(self):
         self.rect = None
 
+
 class Ball:
 
     def __init__(self, x, y, moveX, moveY, game):
@@ -117,12 +177,13 @@ class Ball:
         self.dx = moveX
         self.dy = moveY
         self.game = game
-        self.height = 40
-        self.width = 40
+        self.height = 32
+        self.width = 32
         self.rectangle = (self.x, self.y, self.width, self.height)
 
     def draw(self, win):
-        pygame.draw.rect(win, (0, 255, 0), self.rectangle)
+        ball = pygame.image.load("images\\tenis.png")
+        win.blit(ball, (self.x, self.y))
 
     def update(self, game):
         self.game = game

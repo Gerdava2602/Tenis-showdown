@@ -42,15 +42,12 @@ class Game:
         self.score[0] = 0
         self.score[1] = 0
 
-
-    def touched(self, data):
-        # Movement of the ball
-        pass
-
     def draw(self, win):
+        court = pygame.image.load("images\\court.png")
         font = pygame.font.SysFont("comicsans", 80)
         score_1 = font.render(str(self.score[0]), 1, (255, 0, 0), True)
         score_2 = font.render(str(self.score[1]), 1, (255, 0, 0), True)
+        win.blit(court, (0, 0))
         win.blit(score_1, (500-score_1.get_width(), 20))
         win.blit(score_2, (520, 20))
         if self.p1 is not None and self.p2 is not None:

@@ -50,7 +50,7 @@ def redrawWindow(win, game):
     pygame.display.update()
 
 
-#btns = [Button("Play", 100, 100, 200, 50, (0, 0, 0))]
+# btns = [Button("Play", 100, 100, 200, 50, (0, 0, 0))]
 
 
 # The function to run the main game
@@ -89,7 +89,6 @@ def main():
                     if button.click(pos) and game.connected():
         """
         redrawWindow(win, game)
-
 
 
 main()
