@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import time
 
@@ -5,6 +7,15 @@ import time
 def intersects(first, other):
     return first.x < other.x + other.width and first.x + first.width > other.x and first.y < other.y + other.height \
            and first.y + first.height > other.y
+
+
+right = [pygame.image.load("images\\Right_1.png"), pygame.image.load("images\\Right_2.png"),
+         pygame.image.load("images\\Right_3.png")]
+up = [pygame.image.load("images\\Up_1.png"), pygame.image.load("images\\Up_2.png"), pygame.image.load("images\\Up_3.png")]
+left = [pygame.image.load("images\\Left_1.png"), pygame.image.load("images\\Left_2.png"), pygame.image.load("images\\Left_3.png")]
+down = [pygame.image.load("images\\Down_1.png"), pygame.image.load("images\\Down_2.png"), pygame.image.load("images\\Down_3.png")]
+
+count = 0
 
 
 class Player:
@@ -36,23 +47,25 @@ class Player:
 
     def draw(self, win):
 
-        if self.up:
-            image = pygame.image.load("images\\Up_" + str(self.counter) + ".png")
-        elif self.down:
-            image = pygame.image.load("images\\Down_" + str(self.counter) + ".png")
-        elif self.right:
-            image = pygame.image.load("images\\Right_" + str(self.counter) + ".png")
-        elif self.left:
-            image = pygame.image.load("images\\Left_" + str(self.counter) + ".png")
-        else:
-            self.counter = 1
-            if self.id == 1:
-                image = pygame.image.load("images\\Left_3.png")
-            else:
-                image = pygame.image.load("images\\Right_3.png")
-        self.counter = self.counter + 1
-        win.blit(image, (self.x, self.y))
+        global count
 
+        if count + 1 >= 9:
+            count = 0
+
+        if self.up:
+            win.blit(up[count // 3], (self.x, self.y))
+        elif self.down:
+            win.blit(down[count // 3], (self.x, self.y))
+        elif self.right:
+            win.blit(right[count // 3], (self.x, self.y))
+        elif self.left:
+            win.blit(left[count // 3], (self.x, self.y))
+        else:
+            if self.id == 1:
+                win.blit(left[2], (self.x, self.y))
+            else:
+                win.blit(right[2], (self.x, self.y))
+        count += 1
         if self.is_striking():
             self.racket.draw(win)
 
@@ -76,6 +89,10 @@ class Player:
             self.up = False
             self.down = True
             self.y += self.vel
+
+            # Validations
+            if self.y + self.height >= 500:
+                self.y = 499-self.height
 
         if keys[pygame.K_LEFT]:
             self.right = False
@@ -177,6 +194,8 @@ class Ball:
         self.dx = moveX
         self.dy = moveY
         self.game = game
+        self.m = 0.2
+        self.b = 0
         self.height = 32
         self.width = 32
         self.rectangle = (self.x, self.y, self.width, self.height)
@@ -187,21 +206,26 @@ class Ball:
 
     def update(self, game):
         self.game = game
+        self.b = 0
         self.x += self.dx
-        self.y += self.dy
-        if self.y + self.height > 500:
-            self.dy *= -1
-        elif self.y < 0:
-            self.dy *= -1
-
         # If hit
         if intersects(self, game.p1.racket):
             self.x += game.p1.racket.width
+            y2 = random.randint(1, 500)
+            self.m = (y2 - self.y) // (1000 - self.x)
+            self.b = (1000*self.y - self.x*y2)//(self.x - 1000)
             self.dx *= -1
 
         if intersects(self, game.p2.racket):
             self.x -= -game.p2.racket.x + self.x + self.width
+            y2 = random.randint(1, 500)
+            self.m = (self.y - y2) // self.x
+            if self.m < 0:
+                self.m *= -1
+            self.b = y2
             self.dx *= -1
+
+        self.y = 500 - (500 - self.m * self.x + self.b)
 
         if self.x + self.width > 1000:
             self.x = round((1000 - 30) / 2)
@@ -212,4 +236,5 @@ class Ball:
             self.y = round((500 - 30) / 2)
             self.game.score[1] += 15
 
+        print(self.m, self.x, self.y)
         self.rectangle = (self.x, self.y, self.width, self.height)

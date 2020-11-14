@@ -22,7 +22,6 @@ try:
 except socket.error as e:
     str(e)
 
-connected = set()
 games = {}
 idCount = 0
 
@@ -31,9 +30,9 @@ idCount = 0
 def threaded_client(conn, p, gameId):
     global idCount
     if p == 0:
-        conn.send(pickle.dumps(Player(100, 100, (0, 255, 255), p), p))
+        conn.send(pickle.dumps(Player(100, 250, (0, 255, 255), p), p))
     else:
-        conn.send(pickle.dumps(Player(500, 100, (255, 0, 255), p), p))
+        conn.send(pickle.dumps(Player(900, 250, (255, 0, 255), p), p))
     reply = ""
 
     while True:

@@ -6,7 +6,10 @@ pygame.font.init()
 # Creating a window
 Wwidth = 1000
 Wheight = 500
-win = pygame.display.set_mode((Wwidth, Wheight))
+# win = pygame.display.set_mode((Wwidth, Wheight))
+
+win = pygame.display.set_mode((667, Wheight))
+
 pygame.display.set_caption("Tenis showdown")
 icon = pygame.image.load("images\\tenis.png")
 pygame.display.set_icon(icon)
@@ -46,6 +49,7 @@ def redrawWindow(win, game):
             win.blit(text, (Wwidth / 2 - text.get_width() / 2, Wheight / 2 - text.get_height() / 2))
         else:
             game.draw(win)
+            print(game.ball.x, game.ball.y, game.ball.m)
 
     pygame.display.update()
 
@@ -55,6 +59,9 @@ def redrawWindow(win, game):
 
 # The function to run the main game
 def main():
+    global win
+    win = pygame.display.set_mode((Wwidth, Wheight))
+
     run = True
     clock = pygame.time.Clock()
     n = Network()
@@ -91,4 +98,30 @@ def main():
         redrawWindow(win, game)
 
 
-main()
+def draw_menu_window():
+    win.fill((255, 255, 255))
+    bg = pygame.image.load("images\\nadal.png")
+    font = pygame.font.SysFont("comicsans", 60)
+    text = font.render("Welcome to tenis showdown", 1, (255, 0, 0), True)
+    win.blit(bg, (0, 0))
+    win.blit(text, (667 / 2 - text.get_width() / 2, Wheight / 2 - text.get_height()))
+
+    pygame.display.update()
+
+
+def main_menu():
+    run = True
+    while run:
+
+        draw_menu_window()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+    main()
+
+
+main_menu()
