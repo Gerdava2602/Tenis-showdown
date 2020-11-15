@@ -11,9 +11,12 @@ def intersects(first, other):
 
 right = [pygame.image.load("images\\Right_1.png"), pygame.image.load("images\\Right_2.png"),
          pygame.image.load("images\\Right_3.png")]
-up = [pygame.image.load("images\\Up_1.png"), pygame.image.load("images\\Up_2.png"), pygame.image.load("images\\Up_3.png")]
-left = [pygame.image.load("images\\Left_1.png"), pygame.image.load("images\\Left_2.png"), pygame.image.load("images\\Left_3.png")]
-down = [pygame.image.load("images\\Down_1.png"), pygame.image.load("images\\Down_2.png"), pygame.image.load("images\\Down_3.png")]
+up = [pygame.image.load("images\\Up_1.png"), pygame.image.load("images\\Up_2.png"),
+      pygame.image.load("images\\Up_3.png")]
+left = [pygame.image.load("images\\Left_1.png"), pygame.image.load("images\\Left_2.png"),
+        pygame.image.load("images\\Left_3.png")]
+down = [pygame.image.load("images\\Down_1.png"), pygame.image.load("images\\Down_2.png"),
+        pygame.image.load("images\\Down_3.png")]
 
 count = 0
 
@@ -92,7 +95,7 @@ class Player:
 
             # Validations
             if self.y + self.height >= 500:
-                self.y = 499-self.height
+                self.y = 499 - self.height
 
         if keys[pygame.K_LEFT]:
             self.right = False
@@ -191,7 +194,7 @@ class Ball:
     def __init__(self, x, y, moveX, moveY, game):
         self.x = x
         self.y = y
-        self.dx = moveX
+        self.dx = 0
         self.dy = moveY
         self.game = game
         self.m = 1
@@ -206,33 +209,34 @@ class Ball:
 
     def update(self, game):
         self.game = game
-        self.b = 0
 
-        # If hit
+        # If hit, funciona
         if intersects(self, game.p1.racket):
+            if self.dx == 0:
+                self.dx = 1
             self.x += game.p1.racket.width
             # Y destino = y2, X destino = 1000
             # Y origen = self.y, X origen = self.x
-            y2 = -1 * random.randint(1, 500)
+            y2 = -1 * random.randint(1, 500 - self.height)
             self.m = (y2 - -self.y) / (1000 - self.x)
-            self.b = (self.x*y2 - 1000*-self.y)/(self.x - 1000)
+            self.b = (self.x * y2 - 1000 * -self.y) / (self.x - 1000)
             self.dx *= -1
 
         if intersects(self, game.p2.racket):
+            if self.dx == 0:
+                self.dx = 1
             self.x -= -game.p2.racket.x + self.x + self.width
-            # Y destino = self.y, X destino = self.x
-            # Y origen = y2, X origen = 0
-            y2 = -1 * random.randint(self.height, 500)
-            self.m = (-self.y - y2) / self.x
-            self.b = -self.x*-y2/(-self.x)
+            # Y origen = self.y, X origen = self.x
+            # Y destino = y2, X destino = 0
+            y2 = -1 * random.randint(1, 500 - self.height)
+            self.m = (y2 - -self.y) / -self.x
+            self.b = self.x * y2 / self.x
             self.dx *= -1
 
         if self.m == 1:
             self.y = (self.m * self.x + self.b)
         else:
             self.y = -1 * (self.m * self.x + self.b)
-            if self.y < 0:
-                self.y *= -1
 
         if self.x + self.width > 1000:
             self.x = round((1000 - 30) / 2)
