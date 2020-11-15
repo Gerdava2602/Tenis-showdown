@@ -110,7 +110,9 @@ def draw_menu_window():
 
 
 def main_menu():
+    global win
     run = True
+    win = pygame.display.set_mode((667, Wheight))
     while run:
 
         draw_menu_window()
@@ -123,5 +125,5 @@ def main_menu():
                 run = False
     main()
 
-
-main_menu()
+while True:
+    main_menu()
