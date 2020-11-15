@@ -194,7 +194,7 @@ class Ball:
         self.dx = moveX
         self.dy = moveY
         self.game = game
-        self.m = 0.2
+        self.m = 1
         self.b = 0
         self.height = 32
         self.width = 32
@@ -207,25 +207,32 @@ class Ball:
     def update(self, game):
         self.game = game
         self.b = 0
-        self.x += self.dx
+
         # If hit
         if intersects(self, game.p1.racket):
             self.x += game.p1.racket.width
-            y2 = random.randint(1, 500)
-            self.m = (y2 - self.y) // (1000 - self.x)
-            self.b = (1000*self.y - self.x*y2)//(self.x - 1000)
+            # Y destino = y2, X destino = 1000
+            # Y origen = self.y, X origen = self.x
+            y2 = -1 * random.randint(1, 500)
+            self.m = (y2 - -self.y) / (1000 - self.x)
+            self.b = (self.x*y2 - 1000*-self.y)/(self.x - 1000)
             self.dx *= -1
 
         if intersects(self, game.p2.racket):
             self.x -= -game.p2.racket.x + self.x + self.width
-            y2 = random.randint(1, 500)
-            self.m = (self.y - y2) // self.x
-            if self.m < 0:
-                self.m *= -1
-            self.b = y2
+            # Y destino = self.y, X destino = self.x
+            # Y origen = y2, X origen = 0
+            y2 = -1 * random.randint(self.height, 500)
+            self.m = (-self.y - y2) / self.x
+            self.b = -self.x*-y2/(-self.x)
             self.dx *= -1
 
-        self.y = 500 - (500 - self.m * self.x + self.b)
+        if self.m == 1:
+            self.y = (self.m * self.x + self.b)
+        else:
+            self.y = -1 * (self.m * self.x + self.b)
+            if self.y < 0:
+                self.y *= -1
 
         if self.x + self.width > 1000:
             self.x = round((1000 - 30) / 2)
@@ -236,5 +243,6 @@ class Ball:
             self.y = round((500 - 30) / 2)
             self.game.score[1] += 15
 
-        print(self.m, self.x, self.y)
+        self.x += self.dx
+
         self.rectangle = (self.x, self.y, self.width, self.height)

@@ -25,15 +25,16 @@ class Button:
         self.color = color
         self.rect = (self.x, self.y, self.width, self.height)
 
-    def draw(self, win):
+    def draw(self):
         pygame.draw.rect(win, self.color, self.rect)
         font = pygame.font.SysFont("comicsans", 40)
         text = font.render(self.text, 1, (255, 255, 255))
         win.blit(text, (self.x + round(self.width / 2) - round(self.height / 2),
                         self.y + round(self.height / 2) - round(self.height / 2)))
 
+
     def click(self, pos):
-        if self.rect.__contains__(pos):
+        if self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height:
             return True
         else:
             return False
@@ -49,7 +50,7 @@ def redrawWindow(win, game):
             win.blit(text, (Wwidth / 2 - text.get_width() / 2, Wheight / 2 - text.get_height() / 2))
         else:
             game.draw(win)
-            print(game.ball.x, game.ball.y, game.ball.m)
+            print(game.ball.x, game.ball.y, game.ball.m, game.ball.b)
 
     pygame.display.update()
 
@@ -81,6 +82,8 @@ def main():
                     player.x = game[0]
                     player.y = game[1]
                     game = n.send(player)
+            if not game:
+                break
         except:
             run = False
             print("Couldn´t get game")
@@ -103,27 +106,37 @@ def draw_menu_window():
     bg = pygame.image.load("images\\nadal.png")
     font = pygame.font.SysFont("comicsans", 60)
     text = font.render("Welcome to tenis showdown", 1, (255, 0, 0), True)
+
     win.blit(bg, (0, 0))
     win.blit(text, (667 / 2 - text.get_width() / 2, Wheight / 2 - text.get_height()))
 
-    pygame.display.update()
 
 
 def main_menu():
     global win
     run = True
     win = pygame.display.set_mode((667, Wheight))
+    start = Button("Start", 100, 100, 100, 100, (0, 0, 0))
+    exit = Button("Exit", 400, 100, 100, 100, (0, 0, 0))
     while run:
 
         draw_menu_window()
+        start.draw()
+        exit.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                run = False
-    main()
+                if start.click(pygame.mouse.get_pos()):
+                    main()
+
+                if exit.click(pygame.mouse.get_pos()):
+                    run = False
+                    pygame.quit()
+        pygame.display.update()
+
 
 while True:
     main_menu()

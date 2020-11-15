@@ -15,7 +15,7 @@ class Game:
         self.p1 = None
         self.p2 = None
         self.recieved = [False, False]
-        self.ball = Ball(200, 100, 3, 3, self)
+        self.ball = Ball(400, 200, 1, 1, self)
 
     def connected(self):
         return self.ready
