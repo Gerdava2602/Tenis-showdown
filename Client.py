@@ -50,7 +50,6 @@ def redrawWindow(win, game):
             win.blit(text, (Wwidth / 2 - text.get_width() / 2, Wheight / 2 - text.get_height() / 2))
         else:
             game.draw(win)
-            print(game.ball.x, game.ball.y, game.ball.m, game.ball.b)
 
     pygame.display.update()
 
@@ -78,7 +77,7 @@ def main():
             else:
                 game = n.send(player)
                 player.move()
-                if game == (100, 100) or game == (500, 100):
+                if game == (1, 218) or game == (957, 218):
                     player.x = game[0]
                     player.y = game[1]
                     game = n.send(player)

@@ -1,7 +1,6 @@
 import random
 
 import pygame
-import time
 
 
 def intersects(first, other):
@@ -191,11 +190,10 @@ class Racket:
 
 class Ball:
 
-    def __init__(self, x, y, moveX, moveY, game):
+    def __init__(self, x, y, game):
         self.x = x
         self.y = y
         self.dx = 0
-        self.dy = moveY
         self.game = game
         self.m = 1
         self.b = 0
@@ -213,7 +211,7 @@ class Ball:
         # If hit, funciona
         if intersects(self, game.p1.racket):
             if self.dx == 0:
-                self.dx = 1
+                self.dx = 5
             self.x += game.p1.racket.width
             # Y destino = y2, X destino = 1000
             # Y origen = self.y, X origen = self.x
@@ -224,7 +222,7 @@ class Ball:
 
         if intersects(self, game.p2.racket):
             if self.dx == 0:
-                self.dx = 1
+                self.dx = 5
             self.x -= -game.p2.racket.x + self.x + self.width
             # Y origen = self.y, X origen = self.x
             # Y destino = y2, X destino = 0

@@ -47,18 +47,25 @@ def threaded_client(conn, p, gameId):
                     # Resets the game when one player won
                     if game.score[0] == 60 or game.score[1] == 60:
                         if p == 0 and not game.recieved[0]:
-                            conn.send(pickle.dumps((100, 100)))
+                            conn.send(pickle.dumps((1, 218)))
                             game.recieved[0] = True
                         elif p == 1 and not game.recieved[1]:
-                            conn.send(pickle.dumps((500, 100)))
+                            conn.send(pickle.dumps((957, 218)))
                             game.recieved[1] = True
 
                         if game.recieved[0] and game.recieved[1]:
-                            game.reset()
+                            if game.score[0] == 60:
+                                game.sets.append(0)
+                            elif game.score[1] == 60:
+                                game.sets.append(1)
+                            game.set_reset()
                             game.recieved[0] = False
                             game.recieved[1] = False
+
                     elif data != "get":
                         game.get_player(data, p)
+                    elif game.finished:
+                        break
                     game.update()
                     reply = game
                     conn.sendall(pickle.dumps(reply))
