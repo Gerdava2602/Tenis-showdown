@@ -1,5 +1,4 @@
 import random
-
 import pygame
 
 
@@ -8,6 +7,7 @@ def intersects(first, other):
            and first.y + first.height > other.y
 
 
+# Sprite
 right = [pygame.image.load("images\\Right_1.png"), pygame.image.load("images\\Right_2.png"),
          pygame.image.load("images\\Right_3.png")]
 up = [pygame.image.load("images\\Up_1.png"), pygame.image.load("images\\Up_2.png"),
@@ -18,6 +18,12 @@ down = [pygame.image.load("images\\Down_1.png"), pygame.image.load("images\\Down
         pygame.image.load("images\\Down_3.png")]
 
 count = 0
+
+# Sound effects
+pygame.mixer.init()
+
+hit = pygame.mixer.Sound("sounds\\hit.wav")
+swing = pygame.mixer.Sound("sounds\\swing.wav")
 
 
 class Player:
@@ -32,7 +38,7 @@ class Player:
         self.rect = (x, y, self.width, self.height)
         self.vel = 5
         self.swing = (x, y, 0, 0)
-        self.racket = Racket(self, 7, 40, 0, -40)
+        self.racket = Racket(self, 32, 40, 0, -40)
 
         # Strike booleans
         self.strikeU = False
@@ -137,10 +143,12 @@ class Player:
             self.right = False
 
         if keys[pygame.K_q]:
+            swing.play()
             self.strikeU = True
         else:
             self.strikeU = False
         if keys[pygame.K_a]:
+            swing.play()
             self.strikeD = True
         else:
             self.strikeD = False
@@ -177,10 +185,15 @@ class Racket:
 
     def draw(self, win):
         if self.rect is not None:
-            pygame.draw.rect(win, (255, 0, 255), self.rect)
+            if self.posY == -40:
+                rack = pygame.image.load("images\\tennis-racket.png")
+            else:
+                rack = pygame.image.load("images\\tennis-racket-downside.png")
+            win.blit(rack, (self.x, self.y))
 
     def update(self, player, posY):
         self.x = player.x
+        self.posY = posY
         self.y = player.y + posY
         self.rect = (self.x, self.y, self.width, self.height)
 
@@ -210,6 +223,7 @@ class Ball:
 
         # If hit, funciona
         if intersects(self, game.p1.racket):
+            hit.play()
             if self.dx == 0:
                 self.dx = 5
             self.x += game.p1.racket.width
@@ -221,6 +235,7 @@ class Ball:
             self.dx *= -1
 
         if intersects(self, game.p2.racket):
+            hit.play()
             if self.dx == 0:
                 self.dx = 5
             self.x -= -game.p2.racket.x + self.x + self.width

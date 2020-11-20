@@ -8,30 +8,26 @@ Wwidth = 1000
 Wheight = 500
 # win = pygame.display.set_mode((Wwidth, Wheight))
 
-win = pygame.display.set_mode((667, Wheight))
+win = pygame.display.set_mode((Wwidth, Wheight))
 
 pygame.display.set_caption("Tenis showdown")
 icon = pygame.image.load("images\\tenis.png")
 pygame.display.set_icon(icon)
 
+# Music
+pygame.mixer.init()
+
+
+
 
 class Button:
-    def __init__(self, text, x, y, width, height, color):
+    def __init__(self, text, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.text = text
-        self.color = color
         self.rect = (self.x, self.y, self.width, self.height)
-
-    def draw(self):
-        pygame.draw.rect(win, self.color, self.rect)
-        font = pygame.font.SysFont("comicsans", 40)
-        text = font.render(self.text, 1, (255, 255, 255))
-        win.blit(text, (self.x + round(self.width / 2) - round(self.height / 2),
-                        self.y + round(self.height / 2) - round(self.height / 2)))
-
 
     def click(self, pos):
         if self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height:
@@ -54,14 +50,15 @@ def redrawWindow(win, game):
     pygame.display.update()
 
 
-# btns = [Button("Play", 100, 100, 200, 50, (0, 0, 0))]
-
-
 # The function to run the main game
 def main():
     global win
     win = pygame.display.set_mode((Wwidth, Wheight))
 
+    # Start game music
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load("sounds\\game.mp3")
+    pygame.mixer.music.play(-1)
     run = True
     clock = pygame.time.Clock()
     n = Network()
@@ -102,26 +99,20 @@ def main():
 
 def draw_menu_window():
     win.fill((255, 255, 255))
-    bg = pygame.image.load("images\\nadal.png")
-    font = pygame.font.SysFont("comicsans", 60)
-    text = font.render("Welcome to tenis showdown", 1, (255, 0, 0), True)
+    bg = pygame.image.load("images\\menuTenisShowdown.png")
 
     win.blit(bg, (0, 0))
-    win.blit(text, (667 / 2 - text.get_width() / 2, Wheight / 2 - text.get_height()))
-
 
 
 def main_menu():
     global win
     run = True
-    win = pygame.display.set_mode((667, Wheight))
-    start = Button("Start", 100, 100, 100, 100, (0, 0, 0))
-    exit = Button("Exit", 400, 100, 100, 100, (0, 0, 0))
+    start = Button("Start", 311, 387, 355, 65)
+    pygame.mixer.music.load("sounds\\menu.ogg")
+    pygame.mixer.music.play(-1)
     while run:
 
         draw_menu_window()
-        start.draw()
-        exit.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -130,10 +121,6 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start.click(pygame.mouse.get_pos()):
                     main()
-
-                if exit.click(pygame.mouse.get_pos()):
-                    run = False
-                    pygame.quit()
         pygame.display.update()
 
 

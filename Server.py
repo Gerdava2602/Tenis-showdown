@@ -3,6 +3,7 @@ from _thread import *
 from Player import Player
 from Game import Game
 import pickle
+import time
 import sys
 
 # Gets the ipv4 of the host
@@ -29,6 +30,7 @@ idCount = 0
 # This will be the threaded function
 def threaded_client(conn, p, gameId):
     global idCount
+    timer = 0
     if p == 0:
         conn.send(pickle.dumps(Player(100, 250, (0, 255, 255), p), p))
     else:
@@ -62,10 +64,15 @@ def threaded_client(conn, p, gameId):
                             game.recieved[0] = False
                             game.recieved[1] = False
 
+                        if game.winner():
+                            now = time.time()
+                            timer += time.time() - now
+
+                            if timer > 3000:
+                                break
+
                     elif data != "get":
                         game.get_player(data, p)
-                    elif game.finished:
-                        break
                     game.update()
                     reply = game
                     conn.sendall(pickle.dumps(reply))
