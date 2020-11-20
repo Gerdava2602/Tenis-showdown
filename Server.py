@@ -65,11 +65,10 @@ def threaded_client(conn, p, gameId):
                             game.recieved[1] = False
 
                         if game.winner():
-                            now = time.time()
-                            timer += time.time() - now
-
-                            if timer > 3000:
+                            if int(time.time() - start_time) > 5:
                                 break
+                        else:
+                            start_time = time.time()
 
                     elif data != "get":
                         game.get_player(data, p)

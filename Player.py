@@ -1,6 +1,6 @@
 import random
 import pygame
-
+import time
 
 def intersects(first, other):
     return first.x < other.x + other.width and first.x + first.width > other.x and first.y < other.y + other.height \
@@ -39,10 +39,12 @@ class Player:
         self.vel = 5
         self.swing = (x, y, 0, 0)
         self.racket = Racket(self, 32, 40, 0, -40)
+        self.start_time = 0
 
         # Strike booleans
         self.strikeU = False
         self.strikeD = False
+        self.can_strike = True
 
         # Move booleans
         self.right = False
@@ -142,20 +144,27 @@ class Player:
             self.left = False
             self.right = False
 
-        if keys[pygame.K_q]:
+        if keys[pygame.K_q] and self.can_strike:
             swing.play()
             self.strikeU = True
+            self.can_strike = False
         else:
             self.strikeU = False
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] and self.can_strike:
             swing.play()
             self.strikeD = True
+            self.can_strike = False
         else:
             self.strikeD = False
         self.update()
 
     def update(self):
         self.rect = (self.x, self.y, self.width, self.height)
+        if self.can_strike:
+            self.start_time = time.time()
+        else:
+            if int(time.time()-self.start_time) > 1:
+                self.can_strike = True
 
         if self.strikeU:
             self.racket.update(self, -40)
