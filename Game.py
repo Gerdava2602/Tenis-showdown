@@ -12,7 +12,7 @@ class Game:
         self.score = [0, 0]
         self.ready = False
 
-        self.serve_points = [(10, 50), (960, 50), (10, 420), (960, 420)]
+        self.serve_points = [(10, 60), (960, 60), (10, 410), (960, 410)]
         self.sets = list()
         self.p1 = None
         self.p2 = None
