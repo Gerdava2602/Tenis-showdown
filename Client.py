@@ -74,6 +74,7 @@ def main():
             else:
                 game = n.send(player)
                 player.move()
+                print(game)
                 if game == (1, 218) or game == (957, 218):
                     player.x = game[0]
                     player.y = game[1]

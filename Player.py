@@ -3,8 +3,8 @@ import pygame
 import time
 
 def intersects(first, other):
-    return first.x < other.x + other.width and first.x + first.width > other.x and first.y < other.y + other.height \
-           and first.y + first.height > other.y
+    return first.x < other[0] + other[2] and first.x + first.width > other[0] and first.y < other[1] + other[3] \
+           and first.y + first.height > other[1]
 
 
 # Sprite
@@ -163,7 +163,7 @@ class Player:
         if self.can_strike:
             self.start_time = time.time()
         else:
-            if int(time.time()-self.start_time) > 1:
+            if int(time.time() - self.start_time) > 1:
                 self.can_strike = True
 
         if self.strikeU:
@@ -212,13 +212,14 @@ class Racket:
 
 class Ball:
 
-    def __init__(self, x, y, game):
-        self.x = x
-        self.y = y
-        self.dx = 0
+    def __init__(self, game):
         self.game = game
+        self.x = self.game.serve_points[len(self.game.sets)][0]
+        self.y = self.game.serve_points[len(self.game.sets)][1]
+        self.dx = 0
         self.m = 1
         self.b = 0
+        self.serving = False
         self.height = 32
         self.width = 32
         self.rectangle = (self.x, self.y, self.width, self.height)
@@ -230,45 +231,66 @@ class Ball:
     def update(self, game):
         self.game = game
 
-        # If hit, funciona
-        if intersects(self, game.p1.racket):
-            hit.play()
-            if self.dx == 0:
-                self.dx = 5
-            self.x += game.p1.racket.width
-            # Y destino = y2, X destino = 1000
-            # Y origen = self.y, X origen = self.x
-            y2 = -1 * random.randint(1, 500 - self.height)
-            self.m = (y2 - -self.y) / (1000 - self.x)
-            self.b = (self.x * y2 - 1000 * -self.y) / (self.x - 1000)
-            self.dx *= -1
+        # If hit
+        if game.p1.racket.rect is not None:
+            if intersects(self, game.p1.racket.rect):
+                self.serving = False
+                hit.play()
+                if self.dx == 0:
+                    self.dx = 5
+                else:
+                    self.dx += random.randint(-1, 1)
+                    self.dx *= -1
+                self.x += game.p1.racket.width
+                # Y destino = y2, X destino = 1000
+                # Y origen = self.y, X origen = self.x
+                y2 = -1 * random.randint(1, 500 - self.height)
+                self.m = (y2 - -self.y) / (1000 - self.x)
+                self.b = (self.x * y2 - 1000 * -self.y) / (self.x - 1000)
 
-        if intersects(self, game.p2.racket):
-            hit.play()
-            if self.dx == 0:
-                self.dx = 5
-            self.x -= -game.p2.racket.x + self.x + self.width
-            # Y origen = self.y, X origen = self.x
-            # Y destino = y2, X destino = 0
-            y2 = -1 * random.randint(1, 500 - self.height)
-            self.m = (y2 - -self.y) / -self.x
-            self.b = self.x * y2 / self.x
-            self.dx *= -1
+        if game.p2.racket.rect is not None:
+            if intersects(self, game.p2.racket.rect):
+                self.serving = False
+                hit.play()
+                if self.dx == 0:
+                    self.dx = 5
+                else:
+                    self.dx += random.randint(-1, 1)
+                    self.dx *= -1
+                self.x -= -game.p2.racket.x + self.x + self.width
+                # Y origen = self.y, X origen = self.x
+                # Y destino = y2, X destino = 0
+                y2 = -1 * random.randint(1, 500 - self.height)
+                self.m = (y2 - -self.y) / -self.x
+                self.b = self.x * y2 / self.x
 
-        if self.m == 1:
-            self.y = (self.m * self.x + self.b)
-        else:
-            self.y = -1 * (self.m * self.x + self.b)
+        if not self.serving:
+            if self.m == 1:
+                self.y = (self.m * self.x + self.b)
+            else:
+                self.y = -1 * (self.m * self.x + self.b)
 
         if self.x + self.width > 1000:
-            self.x = round((1000 - 30) / 2)
-            self.y = round((500 - 30) / 2)
             self.game.score[0] += 15
+            if self.game.score[0] != 60:
+                self.x = self.game.serve_points[len(self.game.sets)][0]
+                self.y = self.game.serve_points[len(self.game.sets)][1]
+            else:
+                self.x = self.game.serve_points[len(self.game.sets)+1][0]
+                self.y = self.game.serve_points[len(self.game.sets)+1][1]
+            self.dx = 0
+            self.serving = True
         elif self.x < 0:
-            self.x = round((1000 - 30) / 2)
-            self.y = round((500 - 30) / 2)
             self.game.score[1] += 15
-
-        self.x += self.dx
+            if self.game.score[1] != 60:
+                self.x = self.game.serve_points[len(self.game.sets)][0]
+                self.y = self.game.serve_points[len(self.game.sets)][1]
+            else:
+                self.x = self.game.serve_points[len(self.game.sets)+1][0]
+                self.y = self.game.serve_points[len(self.game.sets)+1][1]
+            self.dx = 0
+            self.serving = True
+        else:
+            self.x += self.dx
 
         self.rectangle = (self.x, self.y, self.width, self.height)

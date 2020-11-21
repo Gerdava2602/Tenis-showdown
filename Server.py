@@ -46,7 +46,7 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    # Resets the game when one player won
+                    # Resets the game when one player wins
                     if game.score[0] == 60 or game.score[1] == 60:
                         if p == 0 and not game.recieved[0]:
                             conn.send(pickle.dumps((1, 218)))
@@ -70,7 +70,7 @@ def threaded_client(conn, p, gameId):
                         else:
                             start_time = time.time()
 
-                    elif data != "get":
+                    if data != "get":
                         game.get_player(data, p)
                     game.update()
                     reply = game

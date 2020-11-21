@@ -12,11 +12,12 @@ class Game:
         self.score = [0, 0]
         self.ready = False
 
+        self.serve_points = [(10, 50), (960, 50), (10, 420), (960, 420)]
         self.sets = list()
         self.p1 = None
         self.p2 = None
         self.recieved = [False, False]
-        self.ball = Ball(400, 200, self)
+        self.ball = Ball(self)
 
     def connected(self):
         return self.ready
